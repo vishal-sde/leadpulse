@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: leadpulse
+
+zoho:
+  client-id: ${ZOHO_CLIENT_ID}
+  client-secret: ${ZOHO_CLIENT_SECRET}
+  refresh-token: ${ZOHO_REFRESH_TOKEN}
+  accounts-url: ${ZOHO_ACCOUNTS_URL}
+  api-domain: ${ZOHO_API_DOMAIN}
