@@ -1,6 +1,8 @@
 package com.leadpulse.leadpulse.lead;
 
 
+import com.leadpulse.leadpulse.ai.LeadScoreResult;
+import com.leadpulse.leadpulse.ai.LeadScoringService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -15,6 +17,7 @@ import java.util.Map;
 public class LeadProcessingService {
 
     private final LeadProcessingRepository leadProcessingRepository;
+    private final LeadScoringService leadScoringService;
 
     @Async("leadProcessingExecutor")
     public void processLeadAsync(Long recordId, String leadid, Map<String,Object> payload){
@@ -28,8 +31,20 @@ public class LeadProcessingService {
             record.setStatus(ProcessingStatus.PROCESSING);
             leadProcessingRepository.save(record);
 
-            //todo: enrichment and Ai scoring
-            //todo: assignment
+            String company = String.valueOf(payload.get("Company"));
+            String fullName = String.valueOf(payload.get("Full_Name"));
+            String email = String.valueOf(payload.get("Email"));
+            String leadScore = String.valueOf(payload.get("Lead_Source"));
+
+            LeadScoreResult scoreResult = leadScoringService.scoreLead(company,fullName,email,leadScore);
+            record.setAiScore(scoreResult.score());
+            record.setPriority(scoreResult.priority());
+            record.setStatus(ProcessingStatus.SCORED);
+            leadProcessingRepository.save(record);
+
+            log.info("[{}] Scored lead {}: {} ({})",Thread.currentThread().getName(),leadid,scoreResult.score(),scoreResult.priority());
+
+            //todo: assignent
 
             record.setStatus(ProcessingStatus.COMPLETED);
             record.setProcessingCompletedAt(LocalDateTime.now());

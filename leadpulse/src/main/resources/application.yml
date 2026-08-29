@@ -12,6 +12,14 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  ai:
+    google:
+      genai:
+        api-key: ${GOOGLE_API_KEY}
+        chat:
+          options:
+            model: gemini-3.6-flash
+
 zoho:
   client-id: ${ZOHO_CLIENT_ID}
   client-secret: ${ZOHO_CLIENT_SECRET}
