@@ -3,6 +3,7 @@ package com.leadpulse.leadpulse.webhook;
 import com.leadpulse.leadpulse.idempotency.IdempotencyService;
 import com.leadpulse.leadpulse.lead.LeadProcessing;
 import com.leadpulse.leadpulse.lead.LeadProcessingRepository;
+import com.leadpulse.leadpulse.lead.LeadProcessingService;
 import com.leadpulse.leadpulse.lead.ProcessingStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ public class LeadWebhookController {
 
     private final IdempotencyService idempotencyService;
     private final LeadProcessingRepository leadProcessingRepository;
+    private final LeadProcessingService leadProcessingService;
 
     @PostMapping("/api/v1/webhooks/zoho/leads")
     public ResponseEntity<String> receiveLead(@RequestBody Map<String,Object> payload,
@@ -46,11 +48,12 @@ public class LeadWebhookController {
 
         leadProcessingRepository.save(record);
 
-        log.info("Saved audit record with id {} for lead {}",record.getId(),leadId);
+        leadProcessingService.processLeadAsync(record.getId(),leadId,payload);
+
 
         //todo: actual processing enrichment,AI scoring,assignment goeas here later
 
-        return ResponseEntity.ok("Received");
+        return ResponseEntity.ok("Accepted");
 
     }
 }
