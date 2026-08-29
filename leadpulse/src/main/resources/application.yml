@@ -2,6 +2,11 @@ spring:
   application:
     name: leadpulse
 
+  data:
+    redis:
+      host: redis
+      port: 6379
+
 zoho:
   client-id: ${ZOHO_CLIENT_ID}
   client-secret: ${ZOHO_CLIENT_SECRET}
