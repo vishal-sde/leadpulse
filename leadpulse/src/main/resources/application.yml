@@ -26,3 +26,10 @@ zoho:
   refresh-token: ${ZOHO_REFRESH_TOKEN}
   accounts-url: ${ZOHO_ACCOUNTS_URL}
   api-domain: ${ZOHO_API_DOMAIN}
+
+
+leadpulse:
+  reps:
+    - Abinanth
+    - Arul
+    - Rohith

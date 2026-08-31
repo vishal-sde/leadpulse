@@ -3,6 +3,7 @@ package com.leadpulse.leadpulse.lead;
 
 import com.leadpulse.leadpulse.ai.LeadScoreResult;
 import com.leadpulse.leadpulse.ai.LeadScoringService;
+import com.leadpulse.leadpulse.assignment.AssignmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -18,6 +19,7 @@ public class LeadProcessingService {
 
     private final LeadProcessingRepository leadProcessingRepository;
     private final LeadScoringService leadScoringService;
+    private final AssignmentService assignmentService;
 
     @Async("leadProcessingExecutor")
     public void processLeadAsync(Long recordId, String leadid, Map<String,Object> payload){
@@ -44,7 +46,12 @@ public class LeadProcessingService {
 
             log.info("[{}] Scored lead {}: {} ({})",Thread.currentThread().getName(),leadid,scoreResult.score(),scoreResult.priority());
 
-            //todo: assignent
+           String assignedRep = assignmentService.assignRep();
+           record.setAssignedRep(assignedRep);
+           record.setStatus(ProcessingStatus.ASSIGNED);
+           leadProcessingRepository.save(record);
+
+           log.info("[{}] Assigned lead {} to {}",Thread.currentThread().getName(),leadid,assignedRep);
 
             record.setStatus(ProcessingStatus.COMPLETED);
             record.setProcessingCompletedAt(LocalDateTime.now());
