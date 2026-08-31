@@ -4,6 +4,7 @@ package com.leadpulse.leadpulse.lead;
 import com.leadpulse.leadpulse.ai.LeadScoreResult;
 import com.leadpulse.leadpulse.ai.LeadScoringService;
 import com.leadpulse.leadpulse.assignment.AssignmentService;
+import com.leadpulse.leadpulse.zoho.ZohoLeadUpdateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -20,6 +21,7 @@ public class LeadProcessingService {
     private final LeadProcessingRepository leadProcessingRepository;
     private final LeadScoringService leadScoringService;
     private final AssignmentService assignmentService;
+    private final ZohoLeadUpdateService zohoLeadUpdateService;
 
     @Async("leadProcessingExecutor")
     public void processLeadAsync(Long recordId, String leadid, Map<String,Object> payload){
@@ -52,6 +54,8 @@ public class LeadProcessingService {
            leadProcessingRepository.save(record);
 
            log.info("[{}] Assigned lead {} to {}",Thread.currentThread().getName(),leadid,assignedRep);
+
+           zohoLeadUpdateService.updateLeadResults(leadid,scoreResult.score(),scoreResult.priority(),assignedRep);
 
             record.setStatus(ProcessingStatus.COMPLETED);
             record.setProcessingCompletedAt(LocalDateTime.now());
